@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>뚝딱 시계 · 용쌤</title>
+  <meta name="description" content="교실 스크린을 위한 픽셀 아트 스타일 시계. 현재 교시와 날짜를 한눈에." />
+  <meta property="og:title" content="뚝딱 시계 · 용쌤" />
+  <meta property="og:description" content="교실용 픽셀 시계 · 무궁무진클래스" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.1/Galmuri11.woff2" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'Galmuri11';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.1/Galmuri11.woff2') format('woff2');
+      font-display: swap;
+    }
+
+    :root {
+      --pixel-dark: #1A2A4A;
+      --pixel-shadow: #000000;
+    }
+
+    .theme-light {
+      --bg: #FFF8F0;
+      --text: #1A2A4A;
+      --accent: #FF9500;
+      --panel: #FFFFFF;
+    }
+    .theme-dark {
+      --bg: #0A0E27;
+      --text: #FFFFFF;
+      --accent: #FFD95E;
+      --panel: #14183A;
+    }
+    .theme-pastel {
+      --bg: #FFE5EC;
+      --text: #7C3AED;
+      --accent: #FF6B9D;
+      --panel: #FFF0F5;
+    }
+
+    * {
+      font-family: 'Galmuri11', monospace !important;
+      image-rendering: pixelated;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      gap: 12px;
+    }
+
+    .theme-group { display: flex; gap: 8px; }
+
+    .pixel-btn {
+      border: 3px solid var(--text);
+      box-shadow: 4px 4px 0 var(--pixel-shadow);
+      border-radius: 0 !important;
+      transition: all 0.1s steps(2);
+      cursor: pointer;
+      padding: 10px 18px;
+      background: var(--accent);
+      color: var(--text);
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .pixel-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--pixel-shadow);
+    }
+    .pixel-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--pixel-shadow);
+    }
+    .pixel-btn.icon {
+      padding: 8px 12px;
+      min-width: 48px;
+      font-size: 1.2rem;
+    }
+    .pixel-btn.active {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .pixel-box {
+      border: 3px solid var(--text);
+      box-shadow: 4px 4px 0 var(--pixel-shadow);
+      border-radius: 0 !important;
+      background: var(--panel);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    #date {
+      font-size: 3rem;
+      line-height: 1.1;
+      letter-spacing: 0.05em;
+    }
+
+    #time {
+      font-size: 18rem;
+      line-height: 0.9;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-shadow: 6px 6px 0 var(--pixel-shadow);
+      white-space: nowrap;
+    }
+
+    #period-info {
+      font-size: 2rem;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #period-range {
+      font-size: 1.3rem;
+      opacity: 0.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+    footer a { color: var(--accent); text-decoration: underline; }
+
+    /* Modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 10;
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: var(--panel);
+      padding: 28px 32px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      margin: 0 0 20px 0;
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+    .schedule-row {
+      display: grid;
+      grid-template-columns: 80px 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    .schedule-row label { font-weight: bold; }
+    .schedule-row input[type="time"] {
+      border: 3px solid var(--text);
+      border-radius: 0 !important;
+      padding: 6px 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      width: 100%;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      #time { font-size: 10rem; text-shadow: 4px 4px 0 var(--pixel-shadow); }
+      #date { font-size: 2rem; }
+      #period-info { font-size: 1.4rem; }
+    }
+    @media (max-width: 560px) {
+      #time { font-size: 5.5rem; }
+      #date { font-size: 1.4rem; }
+      #period-info { font-size: 1.1rem; }
+      .schedule-row { grid-template-columns: 60px 1fr auto 1fr; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body class="theme-light">
+  <div class="topbar">
+    <div class="theme-group">
+      <button class="pixel-btn icon" data-theme="light" title="밝은 모드">🌞</button>
+      <button class="pixel-btn icon" data-theme="dark" title="어두운 모드">🌙</button>
+      <button class="pixel-btn icon" data-theme="pastel" title="파스텔 모드">🌸</button>
+    </div>
+    <button class="pixel-btn" id="open-settings">⚙️ 교시설정</button>
+  </div>
+
+  <main>
+    <div id="date">—</div>
+    <div id="time">00:00:00</div>
+    <div id="period-info">
+      <div id="period-label">—</div>
+      <div id="period-range"></div>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 무궁무진클래스 · 용쌤 → <a href="https://mumuclass.kr" target="_blank" rel="noopener">mumuclass.kr</a>
+  </footer>
+
+  <div class="overlay" id="overlay">
+    <div class="modal pixel-box">
+      <h2>⚙️ 교시 시간표</h2>
+      <div id="schedule-editor"></div>
+      <div class="modal-actions">
+        <button class="pixel-btn" id="reset-btn">기본값 복원</button>
+        <button class="pixel-btn" id="cancel-btn">취소</button>
+        <button class="pixel-btn" id="save-btn">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_THEME = 'dd-clock-theme';
+    const STORAGE_SCHEDULE = 'dd-clock-schedule';
+
+    const DEFAULT_SCHEDULE = [
+      { period: 1, start: '09:00', end: '09:40' },
+      { period: 2, start: '09:50', end: '10:30' },
+      { period: 3, start: '10:40', end: '11:20' },
+      { period: 4, start: '11:30', end: '12:10' },
+      { period: 5, start: '13:00', end: '13:40' },
+      { period: 6, start: '13:50', end: '14:30' }
+    ];
+
+    const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+    let schedule = loadSchedule();
+
+    function loadSchedule() {
+      try {
+        const raw = localStorage.getItem(STORAGE_SCHEDULE);
+        if (!raw) return structuredClone(DEFAULT_SCHEDULE);
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length !== 6) return structuredClone(DEFAULT_SCHEDULE);
+        return parsed;
+      } catch {
+        return structuredClone(DEFAULT_SCHEDULE);
+      }
+    }
+
+    function applyTheme(name) {
+      document.body.className = 'theme-' + name;
+      localStorage.setItem(STORAGE_THEME, name);
+      document.querySelectorAll('[data-theme]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === name);
+      });
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function toMinutes(hhmm) {
+      const [h, m] = hhmm.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function currentPeriodInfo(now) {
+      const cur = now.getHours() * 60 + now.getMinutes();
+      for (let i = 0; i < schedule.length; i++) {
+        const s = schedule[i];
+        const start = toMinutes(s.start);
+        const end = toMinutes(s.end);
+        if (cur >= start && cur < end) {
+          return { label: `🏫 ${s.period}교시 (수업 중)`, range: `${s.start} ~ ${s.end}` };
+        }
+      }
+      for (let i = 0; i < schedule.length - 1; i++) {
+        const curEnd = toMinutes(schedule[i].end);
+        const nextStart = toMinutes(schedule[i + 1].start);
+        if (cur >= curEnd && cur < nextStart) {
+          return { label: `☕ 쉬는 시간`, range: `다음 ${schedule[i + 1].period}교시 · ${schedule[i + 1].start}` };
+        }
+      }
+      const firstStart = toMinutes(schedule[0].start);
+      const lastEnd = toMinutes(schedule[schedule.length - 1].end);
+      if (cur < firstStart) return { label: '🌅 등교 시간', range: `1교시 · ${schedule[0].start}` };
+      if (cur >= lastEnd) return { label: '🎒 방과 후', range: '오늘 수업 끝' };
+      return { label: '—', range: '' };
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const d = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} (${DAYS[now.getDay()]})`;
+      const t = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      document.getElementById('date').textContent = d;
+      document.getElementById('time').textContent = t;
+      const p = currentPeriodInfo(now);
+      document.getElementById('period-label').textContent = p.label;
+      document.getElementById('period-range').textContent = p.range;
+    }
+
+    function renderEditor(data) {
+      const editor = document.getElementById('schedule-editor');
+      editor.innerHTML = '';
+      data.forEach((s, idx) => {
+        const row = document.createElement('div');
+        row.className = 'schedule-row';
+        row.innerHTML = `
+          <label>${s.period}교시</label>
+          <input type="time" data-idx="${idx}" data-field="start" value="${s.start}" />
+          <span>~</span>
+          <input type="time" data-idx="${idx}" data-field="end" value="${s.end}" />
+        `;
+        editor.appendChild(row);
+      });
+    }
+
+    function openSettings() {
+      renderEditor(schedule);
+      document.getElementById('overlay').classList.add('open');
+    }
+    function closeSettings() {
+      document.getElementById('overlay').classList.remove('open');
+    }
+
+    function collectEditor() {
+      const rows = document.querySelectorAll('#schedule-editor .schedule-row');
+      const next = structuredClone(DEFAULT_SCHEDULE);
+      rows.forEach((row, idx) => {
+        const startIn = row.querySelector('[data-field="start"]').value;
+        const endIn = row.querySelector('[data-field="end"]').value;
+        if (startIn) next[idx].start = startIn;
+        if (endIn) next[idx].end = endIn;
+      });
+      return next;
+    }
+
+    document.querySelectorAll('[data-theme]').forEach(btn => {
+      btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+    });
+    document.getElementById('open-settings').addEventListener('click', openSettings);
+    document.getElementById('cancel-btn').addEventListener('click', closeSettings);
+    document.getElementById('overlay').addEventListener('click', (e) => {
+      if (e.target.id === 'overlay') closeSettings();
+    });
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      renderEditor(DEFAULT_SCHEDULE);
+    });
+    document.getElementById('save-btn').addEventListener('click', () => {
+      schedule = collectEditor();
+      localStorage.setItem(STORAGE_SCHEDULE, JSON.stringify(schedule));
+      closeSettings();
+      updateClock();
+    });
+
+    applyTheme(localStorage.getItem(STORAGE_THEME) || 'light');
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
