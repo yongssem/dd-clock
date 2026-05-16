@@ -4,254 +4,413 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>뚝딱 시계 · 용쌤</title>
-  <meta name="description" content="교실 스크린을 위한 픽셀 아트 스타일 시계. 현재 교시와 날짜를 한눈에." />
+  <meta name="description" content="교실 스크린을 위한 부드러운 뉴모피즘 시계. 현재 교시와 진행도를 한눈에." />
   <meta property="og:title" content="뚝딱 시계 · 용쌤" />
-  <meta property="og:description" content="교실용 픽셀 시계 · 무궁무진클래스" />
+  <meta property="og:description" content="교실용 뉴모피즘 시계 · 무궁무진클래스" />
   <meta property="og:type" content="website" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.1/Galmuri11.woff2" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
-    @font-face {
-      font-family: 'Galmuri11';
-      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2107@1.1/Galmuri11.woff2') format('woff2');
-      font-display: swap;
-    }
-
-    :root {
-      --pixel-dark: #1A2A4A;
-      --pixel-shadow: #000000;
-    }
-
+    /* ===== Theme tokens ===== */
     .theme-light {
-      --bg: #FFF8F0;
-      --text: #1A2A4A;
-      --accent: #FF9500;
-      --panel: #FFFFFF;
+      --bg: #fbf9f8;
+      --panel: #f1efee;
+      --text: #1b1c1c;
+      --text-muted: #4a504a;
+      --primary: #4a654e;
+      --primary-soft: #cceace;
+      --primary-ink: #07200f;
+      --accent: #8e4e14;
+      --track: #e4e2e2;
+      --shadow-light: rgba(255, 255, 255, 1);
+      --shadow-dark: rgba(0, 0, 0, 0.08);
     }
     .theme-dark {
-      --bg: #0A0E27;
-      --text: #FFFFFF;
-      --accent: #FFD95E;
-      --panel: #14183A;
+      --bg: #14171f;
+      --panel: #1c1f29;
+      --text: #f1efee;
+      --text-muted: #a8aab1;
+      --primary: #b0ceb2;
+      --primary-soft: #2a3a2e;
+      --primary-ink: #e6f4e8;
+      --accent: #ffb780;
+      --track: #2a2e3a;
+      --shadow-light: rgba(255, 255, 255, 0.04);
+      --shadow-dark: rgba(0, 0, 0, 0.55);
     }
     .theme-pastel {
-      --bg: #FFE5EC;
-      --text: #7C3AED;
-      --accent: #FF6B9D;
-      --panel: #FFF0F5;
+      --bg: #ffe5ec;
+      --panel: #fff0f5;
+      --text: #5b2a6b;
+      --text-muted: #8a5a9a;
+      --primary: #c084d6;
+      --primary-soft: #f7d8ff;
+      --primary-ink: #4a1f5e;
+      --accent: #ff6b9d;
+      --track: #f7c8d8;
+      --shadow-light: rgba(255, 255, 255, 0.9);
+      --shadow-dark: rgba(180, 70, 120, 0.18);
     }
 
-    * {
-      font-family: 'Galmuri11', monospace !important;
-      image-rendering: pixelated;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      overflow-x: hidden;
     }
 
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
+    /* ===== Neo shadows ===== */
+    .neo {
+      box-shadow:
+        -8px -8px 16px var(--shadow-light),
+        8px 8px 16px var(--shadow-dark);
+    }
+    .neo-inset {
+      box-shadow:
+        inset -4px -4px 8px var(--shadow-light),
+        inset 4px 4px 8px var(--shadow-dark);
+    }
+    .neo-btn {
+      box-shadow:
+        -4px -4px 8px var(--shadow-light),
+        4px 4px 8px var(--shadow-dark);
+      transition: all 0.2s ease;
+    }
+    .neo-btn:hover { transform: translateY(-1px); }
+    .neo-btn:active {
+      box-shadow:
+        inset -2px -2px 4px var(--shadow-light),
+        inset 2px 2px 4px var(--shadow-dark);
+      transform: translateY(0);
+    }
+
+    /* ===== Topbar ===== */
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 24px;
+      padding: 20px 32px;
       gap: 12px;
     }
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
 
     .theme-group { display: flex; gap: 8px; }
 
-    .pixel-btn {
-      border: 3px solid var(--text);
-      box-shadow: 4px 4px 0 var(--pixel-shadow);
-      border-radius: 0 !important;
-      transition: all 0.1s steps(2);
-      cursor: pointer;
-      padding: 10px 18px;
-      background: var(--accent);
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: var(--bg);
       color: var(--text);
-      font-weight: bold;
-      font-size: 1rem;
-    }
-    .pixel-btn:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: 6px 6px 0 var(--pixel-shadow);
-    }
-    .pixel-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 var(--pixel-shadow);
-    }
-    .pixel-btn.icon {
-      padding: 8px 12px;
-      min-width: 48px;
+      border-radius: 999px;
+      cursor: pointer;
       font-size: 1.2rem;
     }
-    .pixel-btn.active {
-      background: var(--text);
-      color: var(--bg);
+    .icon-btn.active {
+      background: var(--primary-soft);
+      color: var(--primary-ink);
     }
 
-    .pixel-box {
-      border: 3px solid var(--text);
-      box-shadow: 4px 4px 0 var(--pixel-shadow);
-      border-radius: 0 !important;
-      background: var(--panel);
+    .text-btn {
+      border: none;
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 999px;
+      cursor: pointer;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
+    /* ===== Main ===== */
     main {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1.5rem;
-      padding: 2rem 1rem;
-      text-align: center;
+      padding: 24px 32px;
     }
 
-    #date {
-      font-size: 3rem;
-      line-height: 1.1;
-      letter-spacing: 0.05em;
-    }
-
-    #time {
-      font-size: 18rem;
-      line-height: 0.9;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-      text-shadow: 6px 6px 0 var(--pixel-shadow);
-      white-space: nowrap;
-    }
-
-    #period-info {
-      font-size: 2rem;
-      line-height: 1.2;
+    .stage {
+      background: var(--panel);
+      border-radius: 40px;
+      padding: 56px 64px;
+      max-width: 1100px;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
-    }
-    #period-range {
-      font-size: 1.3rem;
-      opacity: 0.8;
+      gap: 28px;
     }
 
+    .date {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: -0.01em;
+    }
+    .date .dow { color: var(--accent); margin-left: 6px; }
+
+    .clock {
+      font-size: 13rem;
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+      user-select: none;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .clock .seconds {
+      font-size: 4.5rem;
+      color: var(--accent);
+      opacity: 0.85;
+      font-weight: 700;
+    }
+
+    .progress-block {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--primary-soft);
+      color: var(--primary-ink);
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .status-chip .emoji { font-size: 1.5rem; }
+
+    .progress-wrap { width: 100%; }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding: 0 6px;
+    }
+    .progress-track {
+      height: 22px;
+      width: 100%;
+      background: var(--track);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      border-radius: 999px;
+      position: relative;
+      transition: width 0.6s ease;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent);
+      border-radius: 999px;
+    }
+
+    /* ===== Footer ===== */
     footer {
-      text-align: center;
-      padding: 12px 16px;
-      font-size: 1rem;
-      opacity: 0.8;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
-    footer a { color: var(--accent); text-decoration: underline; }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    footer a:hover { text-decoration: underline; }
 
-    /* Modal */
+    /* ===== Modal ===== */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
       display: none;
       align-items: center;
       justify-content: center;
       padding: 24px;
-      z-index: 10;
+      z-index: 50;
     }
     .overlay.open { display: flex; }
 
     .modal {
       background: var(--panel);
-      padding: 28px 32px;
-      max-width: 560px;
+      border-radius: 32px;
+      padding: 36px 40px;
+      max-width: 600px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
     }
     .modal h2 {
-      margin: 0 0 20px 0;
-      font-size: 1.8rem;
-      color: var(--accent);
+      margin: 0 0 24px 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.01em;
     }
     .schedule-row {
       display: grid;
       grid-template-columns: 80px 1fr auto 1fr;
-      gap: 8px;
+      gap: 12px;
       align-items: center;
-      margin-bottom: 10px;
-      font-size: 1.1rem;
+      margin-bottom: 12px;
+      font-size: 1rem;
     }
-    .schedule-row label { font-weight: bold; }
+    .schedule-row label { font-weight: 700; color: var(--text-muted); }
+    .schedule-row span { color: var(--text-muted); }
     .schedule-row input[type="time"] {
-      border: 3px solid var(--text);
-      border-radius: 0 !important;
-      padding: 6px 8px;
+      border: none;
       background: var(--bg);
       color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-family: inherit;
       font-size: 1rem;
       width: 100%;
+      box-shadow:
+        inset -2px -2px 4px var(--shadow-light),
+        inset 2px 2px 4px var(--shadow-dark);
     }
+    .schedule-row input[type="time"]:focus { outline: 2px solid var(--primary); }
+
     .modal-actions {
       display: flex;
       gap: 10px;
       justify-content: flex-end;
-      margin-top: 20px;
+      margin-top: 24px;
       flex-wrap: wrap;
     }
-
-    @media (max-width: 900px) {
-      #time { font-size: 10rem; text-shadow: 4px 4px 0 var(--pixel-shadow); }
-      #date { font-size: 2rem; }
-      #period-info { font-size: 1.4rem; }
+    .modal-actions .text-btn.primary {
+      background: var(--primary);
+      color: #fff;
     }
-    @media (max-width: 560px) {
-      #time { font-size: 5.5rem; }
-      #date { font-size: 1.4rem; }
-      #period-info { font-size: 1.1rem; }
+    .modal-actions .text-btn.primary:active {
+      box-shadow:
+        inset -2px -2px 4px rgba(255,255,255,0.15),
+        inset 2px 2px 4px rgba(0,0,0,0.25);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .clock { font-size: 9rem; }
+      .clock .seconds { font-size: 3rem; }
+      .stage { padding: 40px; border-radius: 32px; }
+    }
+    @media (max-width: 700px) {
+      .topbar { padding: 16px 20px; }
+      .brand { font-size: 1.2rem; }
+      main { padding: 16px; }
+      .stage { padding: 28px 20px; gap: 20px; border-radius: 28px; }
+      .date { font-size: 1.2rem; }
+      .clock { font-size: 5rem; }
+      .clock .seconds { font-size: 1.8rem; }
+      .status-chip { font-size: 1rem; padding: 10px 18px; }
+      .progress-track { height: 16px; }
       .schedule-row { grid-template-columns: 60px 1fr auto 1fr; font-size: 0.9rem; }
+      .modal { padding: 24px 20px; border-radius: 24px; }
+      footer { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
 <body class="theme-light">
-  <div class="topbar">
-    <div class="theme-group">
-      <button class="pixel-btn icon" data-theme="light" title="밝은 모드">🌞</button>
-      <button class="pixel-btn icon" data-theme="dark" title="어두운 모드">🌙</button>
-      <button class="pixel-btn icon" data-theme="pastel" title="파스텔 모드">🌸</button>
+  <header class="topbar">
+    <div class="brand">뚝딱 시계</div>
+    <div class="topbar-actions">
+      <div class="theme-group">
+        <button class="icon-btn neo-btn" data-theme="light" title="밝은 모드">🌞</button>
+        <button class="icon-btn neo-btn" data-theme="dark" title="어두운 모드">🌙</button>
+        <button class="icon-btn neo-btn" data-theme="pastel" title="파스텔 모드">🌸</button>
+      </div>
+      <button class="text-btn neo-btn" id="open-settings">⚙️ 교시설정</button>
     </div>
-    <button class="pixel-btn" id="open-settings">⚙️ 교시설정</button>
-  </div>
+  </header>
 
   <main>
-    <div id="date">—</div>
-    <div id="time">00:00:00</div>
-    <div id="period-info">
-      <div id="period-label">—</div>
-      <div id="period-range"></div>
+    <div class="stage neo">
+      <div class="date" id="date">—</div>
+      <div class="clock">
+        <span id="time-main">00:00</span>
+        <span class="seconds" id="time-sec">00</span>
+      </div>
+      <div class="progress-block">
+        <div class="status-chip">
+          <span class="emoji" id="status-emoji">📚</span>
+          <span id="status-label">—</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-labels">
+            <span id="period-start">—</span>
+            <span id="period-end">—</span>
+          </div>
+          <div class="progress-track neo-inset">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
   <footer>
-    © 2026 무궁무진클래스 · 용쌤 → <a href="https://mumuclass.kr" target="_blank" rel="noopener">mumuclass.kr</a>
+    <span>© 2026 무궁무진클래스 · 용쌤</span>
+    <a href="https://mumuclass.kr" target="_blank" rel="noopener">mumuclass.kr →</a>
   </footer>
 
   <div class="overlay" id="overlay">
-    <div class="modal pixel-box">
+    <div class="modal neo">
       <h2>⚙️ 교시 시간표</h2>
       <div id="schedule-editor"></div>
       <div class="modal-actions">
-        <button class="pixel-btn" id="reset-btn">기본값 복원</button>
-        <button class="pixel-btn" id="cancel-btn">취소</button>
-        <button class="pixel-btn" id="save-btn">저장</button>
+        <button class="text-btn neo-btn" id="reset-btn">기본값</button>
+        <button class="text-btn neo-btn" id="cancel-btn">취소</button>
+        <button class="text-btn neo-btn primary" id="save-btn">저장</button>
       </div>
     </div>
   </div>
@@ -294,45 +453,76 @@
     }
 
     function pad(n) { return String(n).padStart(2, '0'); }
-
     function toMinutes(hhmm) {
       const [h, m] = hhmm.split(':').map(Number);
       return h * 60 + m;
     }
 
     function currentPeriodInfo(now) {
-      const cur = now.getHours() * 60 + now.getMinutes();
+      const cur = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
       for (let i = 0; i < schedule.length; i++) {
         const s = schedule[i];
         const start = toMinutes(s.start);
         const end = toMinutes(s.end);
         if (cur >= start && cur < end) {
-          return { label: `🏫 ${s.period}교시 (수업 중)`, range: `${s.start} ~ ${s.end}` };
+          return {
+            emoji: '📚',
+            label: `${s.period}교시 (수업 중)`,
+            startText: s.start,
+            endText: s.end,
+            progress: ((cur - start) / (end - start)) * 100
+          };
         }
       }
       for (let i = 0; i < schedule.length - 1; i++) {
         const curEnd = toMinutes(schedule[i].end);
         const nextStart = toMinutes(schedule[i + 1].start);
         if (cur >= curEnd && cur < nextStart) {
-          return { label: `☕ 쉬는 시간`, range: `다음 ${schedule[i + 1].period}교시 · ${schedule[i + 1].start}` };
+          return {
+            emoji: '☕',
+            label: `쉬는 시간`,
+            startText: schedule[i].end,
+            endText: schedule[i + 1].start,
+            progress: ((cur - curEnd) / (nextStart - curEnd)) * 100
+          };
         }
       }
       const firstStart = toMinutes(schedule[0].start);
       const lastEnd = toMinutes(schedule[schedule.length - 1].end);
-      if (cur < firstStart) return { label: '🌅 등교 시간', range: `1교시 · ${schedule[0].start}` };
-      if (cur >= lastEnd) return { label: '🎒 방과 후', range: '오늘 수업 끝' };
-      return { label: '—', range: '' };
+      if (cur < firstStart) {
+        return {
+          emoji: '🌅',
+          label: '등교 시간',
+          startText: '—',
+          endText: `1교시 ${schedule[0].start}`,
+          progress: 0
+        };
+      }
+      if (cur >= lastEnd) {
+        return {
+          emoji: '🎒',
+          label: '방과 후',
+          startText: '오늘 수업 끝',
+          endText: '—',
+          progress: 100
+        };
+      }
+      return { emoji: '⏰', label: '—', startText: '—', endText: '—', progress: 0 };
     }
 
     function updateClock() {
       const now = new Date();
-      const d = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} (${DAYS[now.getDay()]})`;
-      const t = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      document.getElementById('date').textContent = d;
-      document.getElementById('time').textContent = t;
+      const d = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())}`;
+      document.getElementById('date').innerHTML = `${d}<span class="dow">(${DAYS[now.getDay()]})</span>`;
+      document.getElementById('time-main').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      document.getElementById('time-sec').textContent = pad(now.getSeconds());
+
       const p = currentPeriodInfo(now);
-      document.getElementById('period-label').textContent = p.label;
-      document.getElementById('period-range').textContent = p.range;
+      document.getElementById('status-emoji').textContent = p.emoji;
+      document.getElementById('status-label').textContent = p.label;
+      document.getElementById('period-start').textContent = p.startText;
+      document.getElementById('period-end').textContent = p.endText;
+      document.getElementById('progress-fill').style.width = Math.max(0, Math.min(100, p.progress)) + '%';
     }
 
     function renderEditor(data) {
